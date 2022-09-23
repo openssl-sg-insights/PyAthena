@@ -165,14 +165,11 @@ class AthenaPandasResultSet(AthenaResultSet):
             return self._engine
 
     def __s3_file_system(self):
-        from s3fs import S3FileSystem
+        from pyathena.filesystem.s3 import S3FileSystem
 
+        # TODO block_size, max_workers
         return S3FileSystem(
-            profile=self.connection.profile_name,
-            client_kwargs={
-                "region_name": self.connection.region_name,
-                **self.connection._client_kwargs,
-            },
+            connection=self.connection,
         )
 
     @property
@@ -278,12 +275,9 @@ class AthenaPandasResultSet(AthenaResultSet):
                 keep_default_na=self._keep_default_na,
                 na_values=self._na_values,
                 quoting=self._quoting,
+                # TODO block_size, max_workers
                 storage_options={
-                    "profile": self.connection.profile_name,
-                    "client_kwargs": {
-                        "region_name": self.connection.region_name,
-                        **self.connection._client_kwargs,
-                    },
+                    "connection": self.connection,
                 },
                 chunksize=self._chunksize,
                 **self._kwargs,
@@ -318,12 +312,9 @@ class AthenaPandasResultSet(AthenaResultSet):
             return pd.read_parquet(
                 unload_location,
                 engine=self._engine,
+                # TODO block_size, max_workers
                 storage_options={
-                    "profile": self.connection.profile_name,
-                    "client_kwargs": {
-                        "region_name": self.connection.region_name,
-                        **self.connection._client_kwargs,
-                    },
+                    "connection": self.connection,
                 },
                 use_nullable_dtypes=False,
                 **kwargs,
